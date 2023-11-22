@@ -1,0 +1,71 @@
+body{
+    height: 100svh;
+    background-color: #404040;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+}
+ form{
+    width: 60vw;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+ }
+.inputs{
+    width: 60vw;
+    gap: 10px;
+    display: flex;
+
+}
+label{
+    width: 30vw;
+    display: flex;
+    flex-direction: column;
+    font-size: 2.7vw;
+    align-items: center;
+    gap: 10px;
+    color: whitesmoke;
+    
+}
+input, button{
+    height: 60px;
+    border-radius: 25px;
+    border: none;
+    color: whitesmoke;
+    font-size: 30px;
+
+}
+
+input{
+    width: calc(30vw - 10px);
+    background-color: #303030;
+    text-align: center;
+}
+button{
+    width: 60vw;
+    background-color: #202020;
+
+}
+.onlineRooms{
+    position: absolute;
+    top: 2vh;
+    right: 2vw;
+    color: white;
+    font-size: 2.79vw;
+    width: 18vw;
+    word-wrap: break-word;
+    overflow-y: scroll;
+    height: 100vh;
+    display: flex;
+    flex-direction: column; 
+}
+.onlineRooms::-webkit-scrollbar{
+    display: none;
+}
+.room{
+    margin:0 0 20px 8vw;
+}
+
