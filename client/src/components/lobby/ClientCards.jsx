@@ -16,8 +16,11 @@ const ClientCards = ({socket}) => {
 
             setAmountOfClientCards('normal')
         }
-
-        
+    }
+    let deleteCard = (index) => {
+        const otherCards = clientCards
+        otherCards.splice(index, 1)
+        setClientCards([...otherCards])
     }
 
     useEffect(() => {
@@ -29,7 +32,7 @@ const ClientCards = ({socket}) => {
         <div className={'cardsList '+ amountOfClientCards}>
             {
                 //clientCards.map((elem, index) => <div key={index} className={'card '+ elem.color}>{elem.char} </div>)
-                    clientCards.map((elem, index) => <ClientCard key={index} color={elem.color} char={elem.char} socket={socket}/>)
+                    clientCards.map((elem, index) => <ClientCard key={index} index={index} color={elem.color} char={elem.char} socket={socket} deleteCard={deleteCard}/>)
             }
         </div>
     )

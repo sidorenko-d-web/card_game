@@ -44,18 +44,16 @@ const Opponents = (props) => {
     console.log(opponents)
 
     return (
-        <div className={numberOfPlayers+'-players'}>
-            <div className="opponent one">
-                <OpponentCards opponent = {opponents[1]} number={1}  socket= {props.socket}/>
+        <div className={numberOfPlayers + "-players"}>
+          {opponents.slice(1).map((opponent, index) => (
+            <div className={`opponent`} key={index} id={index+1}>
+              <OpponentCards
+                opponent={opponent}
+                number={index}
+                socket={props.socket}
+              />
             </div>
-
-            <div className="opponent two">
-
-            </div>
-
-            <div className="opponent three">
-
-            </div>
+          ))}
         </div>
     )
 }

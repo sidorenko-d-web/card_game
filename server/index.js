@@ -7,7 +7,7 @@ const { disconnect } = require('process')
 
 const io = require('socket.io')(server, {
     cors: {
-        origin: 'http://localhost:5173'
+        origin: '*'
     }
 })
 
@@ -76,6 +76,10 @@ app.get('/', (req, res) => {
     res.send('server')
 })
 
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
 io.on('connection', socket => {
 
     console.log(socket.id + ' user connected')
@@ -83,6 +87,7 @@ io.on('connection', socket => {
     socket.emit('updateRoomsResponse', rooms)
 
     socket.on('login', data => {
+        console.log('a')
         if (rooms.some(room => room.name === data.room)) {//join room
             rooms.find(room => {
                 if (room.name === data.room) { //add new user to room
@@ -90,7 +95,7 @@ io.on('connection', socket => {
                         socket.join(data.room)
                         room.users.push(data.name)
                         socket.emit('success', true)
-                        setTimeout(() => io.to(data.room).emit('updateUsers', room.users), 300)
+                        io.to(data.room).emit('updateUsers', room.users)
 
                     } else {//pls change nickname
                         socket.emit('success', false)
@@ -134,10 +139,34 @@ io.on('connection', socket => {
             if (room.name === data.room) {
                 socket.emit('getCardFromDeckResponse', room.deck.splice(0, 1)[0])
                 io.to(data.room).emit('getCardFromDeckToOpponentResponse', data.name)  
-                socket.emit('a')
+                io.to(data.room).emit('changeNumOfCards', data.name)  
             }
         })
 
+    })
+
+    socket.on('sendCardToTable', data => {
+        rooms.filter(room => {
+            if (room.name === data.room){
+                io.to(data.room).emit('sendCardToTableResponse', data)
+                io.to(data.room).emit('deleteCardFromOpponent', data.name)
+            }
+        })
+    })
+    socket.on('mixDeck', data => {
+        rooms.filter(room => {
+            if (room.name === data.room){
+                localDeckBase = deckBase
+                let mixedDeck = []
+                for (let index = 0; index < 108; index++) {
+                    const randInt = randomInt(0, localDeckBase.length-1)
+                    mixedDeck.push(localDeckBase[randInt])
+                    localDeckBase.splice(randInt, 1)
+                }
+                console.log(mixedDeck)
+                room.deck = mixedDeck
+            }
+        })
     })
 
 })

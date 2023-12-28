@@ -5,11 +5,13 @@ const Deck = ({socket}) => {
     const [deck, setDeck] = useState(108)
 
     let getCardFromDeck = () => {
-        socket.emit('getCardFromDeck',{name: localStorage.getItem('name'), room:localStorage.getItem('room')})
+        if(deck != 0){
+            socket.emit('getCardFromDeck', {name: localStorage.getItem('name'), room: localStorage.getItem('room')})
+        }
     }
     useEffect(() => {
 
-        socket.on('changeNumOfCards', (data) => data.room === localStorage.getItem('room')&&setDeck(data.numOfCards))
+        socket.on('changeNumOfCards', () => setDeck(num => num - 1))
     },[socket])
 
 
