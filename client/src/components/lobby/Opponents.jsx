@@ -8,6 +8,7 @@ const Opponents = (props) => {
     
     let updateUsers = (data) => {
 
+
         let usersToChange = data.users
         if(usersToChange.find(item => item === localStorage.getItem('name'))){
             while(String(usersToChange[0]) !== localStorage.getItem('name')){
@@ -31,17 +32,19 @@ const Opponents = (props) => {
         }
     } 
 
-    props.socket.on('getUsersResponse', (data) => {
-        updateUsers(data)
-    })
-
-
-
-    useEffect(() => updateUsers(props) ,[props.users])
-
-
     
-    console.log(opponents)
+
+    useEffect(() => {
+        props.socket.on('getUsersResponse', (data) => {
+                updateUsers(data)
+                console.log(data)
+            })
+    }, [props.socket])
+
+    useEffect(() => {
+        console.log(props.users)
+        updateUsers(props)
+    }, [props.users])
 
     return (
         <div className={numberOfPlayers + "-players"}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const RoomMenu = ({ socket, changeOrder, order }) => {
+const RoomMenu = ({ socket }) => {
     
 
 
@@ -20,7 +20,10 @@ const RoomMenu = ({ socket, changeOrder, order }) => {
         socket.emit('mixDeck', {room: localStorage.getItem('room')} )
     }
 
-    console.log(order[0])
+    const checkOrder = () => {
+        socket.emit('checkOrder', {room: localStorage.getItem('room')})
+    }
+
     useEffect(() =>{
         window.onpopstate = () => {
             socket.emit('leaveRoom', {name:localStorage.getItem('name'), room:localStorage.getItem('room')})
@@ -30,12 +33,18 @@ const RoomMenu = ({ socket, changeOrder, order }) => {
         }
     })
 
+    useEffect(() => {
+        socket.on('checkOrderResponse', result => {
+            result?console.log('its your turn'):console.log('wait your turn')
+        })
+    }, [socket])
+
 
     return (
         <div className='room-menu'>
             <button onClick={handleLeave} type="button">Leave the room</button>
             <button onClick={mixDeck} type="button">mix deck</button>
-            <button onClick={changeOrder} className={order[0] == localStorage.getItem(name)?'btn-green':'btn-red'} type="button">end move</button>
+            <button onClick={checkOrder} type="button">end move</button>
         </div>
     )
 }

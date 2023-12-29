@@ -10,26 +10,18 @@ import TableCard from './TableCard'
 const Lobby = ({socket}) => {
 
     const [users, setUsers] = useState([])
-    const [order, setOrder] = useState([])
 
     const updateUsersInRoom = (data) => { 
         setUsers(data)
-        setOrder(data)
-
     }
 
-    const changeOrder = () => {
-        let orderToChange = order
-        orderToChange.push(order.splice(0,1)[0])
-        console.log(orderToChange)
-        setOrder(orderToChange)
-    }
     
     useEffect( () => {
-       socket.on('updateUsers', (data) =>  {
-        updateUsersInRoom(data)
-    })
-    },[socket])
+        socket.on('updateUsers', (data) =>  {
+            updateUsersInRoom(data)
+            console.log(data)
+        })
+    }, [socket])
 
 
     return (
@@ -41,7 +33,7 @@ const Lobby = ({socket}) => {
                 <ClientCards socket={socket}/>
                 <TableCard socket={socket}/>
             </div>
-            <RoomMenu order={order} changeOrder={changeOrder} socket={socket}/>
+            <RoomMenu socket={socket}/>
         </main>
     )
 }

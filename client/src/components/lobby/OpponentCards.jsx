@@ -21,9 +21,9 @@ const OpponentCards = (props) => {
 
 
     useEffect(() => {
-        props.socket.on('getCardFromDeckToOpponentResponse',name => addCard(name))
+        props.socket.on('getCardFromDeckToOpponentResponse', name => addCard(name))
 
-        props.socket.on('deleteCardFromOpponent',name => deleteCard(name) )
+        props.socket.on('deleteCardFromOpponent', name => deleteCard(name) )
     },[props.socket])
 
     return (
