@@ -12,6 +12,7 @@ const Lobby = ({socket}) => {
     const [users, setUsers] = useState([])
     const [currentUserOrder, setcurrentUserOrder] = useState()
     const [prevCard, setPrevCard] = useState({color: 'any', char:'x'})
+    const [multiMove, setMultiMove] = useState(false)
 
     const updateUsersInRoom = (data) => { 
         setUsers(data)
@@ -33,10 +34,10 @@ const Lobby = ({socket}) => {
             <div className="game-field">
                 <Deck socket={socket} currentUserOrder={currentUserOrder}/>
                 <Opponents users={users} socket={socket}/>
-                <ClientCards socket={socket} currentUserOrder={currentUserOrder} prevCard={prevCard}/>
+                <ClientCards socket={socket} moveRuleStates={{currentUserOrder, multiMove, setMultiMove}} prevCard={prevCard}/>
                 <TableCard socket={socket} prevCard={prevCard} setPrevCard={setPrevCard}/>
             </div>
-            <RoomMenu socket={socket}  currentUserOrder={currentUserOrder}/>
+            <RoomMenu socket={socket}  currentUserOrder={currentUserOrder} setMultiMove={setMultiMove}/>
         </main>
     )
 }

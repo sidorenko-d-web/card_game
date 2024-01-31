@@ -5,7 +5,7 @@ const ClientCard = (props) => {
 
     let sendCardToTable = () => {
         if(props.socket.id == props.currentUserOrder){
-            if(cardRuleChecker.matchCardToDesc(props.prevCard, {color: props.color, char: props.char})){
+            if(cardRuleChecker.matchCardToDesc(props.prevCard, {color: props.color, char: props.char}, props.multiMove)){
                 props.socket.emit("sendCardToTable", {
                     color: props.color,
                     char: props.char,
@@ -13,6 +13,7 @@ const ClientCard = (props) => {
                     room: localStorage.getItem("room"),
                 });
                 props.deleteCard(props.index);
+                props.setMultiMove(true)
             }else{
                 console.log('wrong card')
             }

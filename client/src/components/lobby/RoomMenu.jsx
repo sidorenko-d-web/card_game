@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const RoomMenu = ({ socket, currentUserOrder }) => {
+const RoomMenu = ({ socket, currentUserOrder, setMultiMove }) => {
     const navigate = useNavigate()
 
     const handleLeave = () => {
@@ -15,7 +15,10 @@ const RoomMenu = ({ socket, currentUserOrder }) => {
     }
 
     const changeOrder = () => {
-        socket.emit('changeOrder', {name:localStorage.getItem('name'), room:localStorage.getItem('room')})
+        if(socket.id == currentUserOrder){
+            setMultiMove(false)
+            socket.emit('changeOrder', {name:localStorage.getItem('name'), room:localStorage.getItem('room')})
+        }
     }
 
     const mixDeck = () => {

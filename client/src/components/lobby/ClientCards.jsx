@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ClientCard from "./ClientCard";
 
-const ClientCards = ({ socket, currentUserOrder, prevCard }) => {
+const ClientCards = ({ socket, moveRuleStates, prevCard }) => {
     
     const [clientCards, setClientCards] = useState([]);
     const [amountOfClientCards, setAmountOfClientCards] = useState([]);
@@ -33,7 +33,9 @@ const ClientCards = ({ socket, currentUserOrder, prevCard }) => {
         <div className={"cardsList " + amountOfClientCards}>
             {clientCards.map((elem, index) => (
                 <ClientCard
-                    currentUserOrder={currentUserOrder}
+                    currentUserOrder={moveRuleStates.currentUserOrder}
+                    multiMove={moveRuleStates.multiMove}
+                    setMultiMove={moveRuleStates.setMultiMove}
                     key={index}
                     index={index}
                     color={elem.color}
