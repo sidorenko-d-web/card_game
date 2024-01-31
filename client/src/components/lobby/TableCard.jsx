@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react'
 
-const TableCard = ({socket}) => {
+const TableCard = ({socket, prevCard, setPrevCard}) => {
 
-    const [cardParams, setCardParams] = useState({color:'any', char: 'x'})
 
     useEffect(() => {
         socket.on('sendCardToTableResponse', (data) => {
             if(data.room === localStorage.getItem('room')){
-                setCardParams({color:data.color, char: data.char})
+                setPrevCard({color:data.color, char: data.char})
             }
         })
     },[socket])
 
     return (
-        <div className={'table-card '+cardParams.color} >{cardParams.char}</div>
+        <div className={'table-card '+prevCard.color} >{prevCard.char}</div>
     )
 }
 

@@ -4,7 +4,7 @@ const PORT = 8080
 const server = require('http').createServer(app)
 const cors = require('cors')
 const { disconnect } = require('process')
-const orderClass = require('./order')
+const orderClass = require('./orderClass')
 
 const io = require('socket.io')(server, {
     cors: {
@@ -14,7 +14,7 @@ const io = require('socket.io')(server, {
 
 let rooms = []
 let deckBase = []
-
+ 
 let cardsToTwise = []
 for (let i = 1; i <= 4; i++) {
     deckBase.push({
@@ -97,6 +97,7 @@ io.on('connection', socket => {
                         socket.emit('success', true)
                         setTimeout(() => {
                             io.to(data.room).emit('updateUsers', room.users)
+                            io.to(data.room).emit('changeOrderResponse', room.order.order[0])
                         }, 300)
 
                     } else {//pls change nickname
@@ -142,10 +143,12 @@ io.on('connection', socket => {
 
     socket.on('getCardFromDeck', data => {//give card to user
         rooms.filter(room => {
-            if (room.name === data.room) {
+            if (room.name === data.room){
+
                 socket.emit('getCardFromDeckResponse', room.deck.splice(0, 1)[0])
                 io.to(data.room).emit('getCardFromDeckToOpponentResponse', data.name)  
-                io.to(data.room).emit('changeNumOfCards', data.name)  
+                io.to(data.room).emit('changeNumOfCards', data.name) 
+                
             }
         })
 
@@ -159,10 +162,11 @@ io.on('connection', socket => {
             }
         })
     })
+
     socket.on('mixDeck', data => {
         rooms.filter(room => {
             if (room.name === data.room){
-                localDeckBase = deckBase
+                localDeckBase = [...deckBase]
                 let mixedDeck = []
                 for (let index = 0; index < 108; index++) {
                     const randInt = randomInt(0, localDeckBase.length-1)
@@ -174,17 +178,11 @@ io.on('connection', socket => {
         })
     })
 
-    socket.on('checkOrder', (data) => { //проверку надо перенести из сокета в функцию, и вызывать эту функцию каждый раз при различных действиях. 
-                                        //В сокете же надо оставить смену хода которая назначена на соответствующую кнопку
+    socket.on('changeOrder', (data) => { 
         rooms.filter(room => {
             if (room.name === data.room){
-
-                let result = false
-                if(socket.id === room.order.order[0]){
-                    result = true
-                }
-                
-                socket.emit('checkOrderResponse', result)
+                room.order.changeOrder()
+                io.to(data.room).emit('changeOrderResponse', room.order.order[0])
             }
         })
     })

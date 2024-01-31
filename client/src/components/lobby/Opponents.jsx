@@ -37,12 +37,10 @@ const Opponents = (props) => {
     useEffect(() => {
         props.socket.on('getUsersResponse', (data) => {
                 updateUsers(data)
-                console.log(data)
             })
     }, [props.socket])
 
     useEffect(() => {
-        console.log(props.users)
         updateUsers(props)
     }, [props.users])
 

@@ -10,6 +10,8 @@ import TableCard from './TableCard'
 const Lobby = ({socket}) => {
 
     const [users, setUsers] = useState([])
+    const [currentUserOrder, setcurrentUserOrder] = useState()
+    const [prevCard, setPrevCard] = useState({color: 'any', char:'x'})
 
     const updateUsersInRoom = (data) => { 
         setUsers(data)
@@ -19,21 +21,22 @@ const Lobby = ({socket}) => {
     useEffect( () => {
         socket.on('updateUsers', (data) =>  {
             updateUsersInRoom(data)
-            console.log(data)
+        })
+        socket.on('changeOrderResponse', (user) => {
+            setcurrentUserOrder(user)
         })
     }, [socket])
 
 
     return (
         <main>
-            
             <div className="game-field">
-                <Deck socket={socket}/>
+                <Deck socket={socket} currentUserOrder={currentUserOrder}/>
                 <Opponents users={users} socket={socket}/>
-                <ClientCards socket={socket}/>
-                <TableCard socket={socket}/>
+                <ClientCards socket={socket} currentUserOrder={currentUserOrder} prevCard={prevCard}/>
+                <TableCard socket={socket} prevCard={prevCard} setPrevCard={setPrevCard}/>
             </div>
-            <RoomMenu socket={socket}/>
+            <RoomMenu socket={socket}  currentUserOrder={currentUserOrder}/>
         </main>
     )
 }

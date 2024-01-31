@@ -24,6 +24,8 @@ const OpponentCards = (props) => {
         props.socket.on('getCardFromDeckToOpponentResponse', name => addCard(name))
 
         props.socket.on('deleteCardFromOpponent', name => deleteCard(name) )
+
+        
     },[props.socket])
 
     return (

@@ -8,7 +8,8 @@
     width: 18vw;
     word-wrap: break-word;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
+    gap: 10px;
 
 }
 .room-menu button{
@@ -110,12 +111,9 @@ img{
 
 }
 .cardsList .card, .table-card{
-    
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 150px;
-    height: 250px;
+    padding: 10px;
+    width: 130px;
+    height: 230px;
     border-radius: 10px;
     border: 1px solid #707070;
 }
@@ -136,13 +134,11 @@ img{
 }
 .many .card{
     margin-right: -110px;
-    transition: 0.5s;
+    transition: all 0.2s;
     flex-shrink: 0;
 }
 .many .card:hover{
     margin-right: 0px;
-    
-    transition: 0.5s;
 }
 .many .card:last-child{
     margin-right: 0;

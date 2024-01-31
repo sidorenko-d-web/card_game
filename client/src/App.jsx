@@ -3,11 +3,9 @@ import { Route, Routes } from "react-router-dom"
 import Home from './components/home/Home'
 import Lobby from './components/lobby/Lobby'
 
-import io from 'socket.io-client'
-const socket = io.connect('http://localhost:8080')
 
 
-function App() {
+function App({socket}) {
 
   return (
     <Routes>
@@ -18,3 +16,4 @@ function App() {
 }
 
 export default App
+ 
