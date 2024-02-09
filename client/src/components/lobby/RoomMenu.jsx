@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import cardRuleChecker from './cardRuleChecker'
 
-const RoomMenu = ({ socket, currentUserOrder, setMultiMove }) => {
+const RoomMenu = ({ socket, moveRuleStates, prevCard }) => {
     const navigate = useNavigate()
 
     const handleLeave = () => {
@@ -15,9 +16,9 @@ const RoomMenu = ({ socket, currentUserOrder, setMultiMove }) => {
     }
 
     const changeOrder = () => {
-        if(socket.id == currentUserOrder){
-            setMultiMove(false)
-            socket.emit('changeOrder', {name:localStorage.getItem('name'), room:localStorage.getItem('room')})
+        if(socket.id == moveRuleStates.currentUserOrder && moveRuleStates.multiMove){
+            moveRuleStates.setMultiMove(false)
+            cardRuleChecker.cardInteraction(prevCard, socket, localStorage.getItem('room'), 'usualMode')
         }
     }
 
@@ -40,7 +41,7 @@ const RoomMenu = ({ socket, currentUserOrder, setMultiMove }) => {
         <div className='room-menu'>
             <button onClick={handleLeave} type="button">Leave the room</button>
             <button onClick={mixDeck} type="button">mix deck</button>
-            <button onClick={changeOrder} className={socket.id == currentUserOrder ? 'green': 'common'} type="button">end move</button>
+            <button onClick={changeOrder} className={socket.id == moveRuleStates.currentUserOrder ? 'green': 'common'} type="button">end move</button>
         </div>
     )
 }

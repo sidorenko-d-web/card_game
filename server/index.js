@@ -5,6 +5,7 @@ const server = require('http').createServer(app)
 const cors = require('cors')
 const { disconnect } = require('process')
 const orderClass = require('./orderClass')
+const { reverse } = require('dns')
 
 const io = require('socket.io')(server, {
     cors: {
@@ -92,12 +93,12 @@ io.on('connection', socket => {
                 if (room.name === data.room) { //add new user to room
                     if (!room.users.includes(data.name)) {
                         socket.join(data.room)
-                        room.users.push(data.name)
-                        room.order.addUser(socket.id)
+                        room.users.push({name:data.name, cards:0})
+                        room.order.addUser({socketId:socket.id, name: data.name})
                         socket.emit('success', true)
                         setTimeout(() => {
                             io.to(data.room).emit('updateUsers', room.users)
-                            io.to(data.room).emit('changeOrderResponse', room.order.order[0])
+                            io.to(data.room).emit('changeOrderResponse', room.order.order[0].socketId)
                         }, 300)
 
                     } else {//pls change nickname
@@ -107,7 +108,7 @@ io.on('connection', socket => {
             })
         } else {//new room
             socket.join(data.room)
-            rooms.push({ name: data.room, users: [data.name], deck: [...deckBase], order: new orderClass(socket.id)}) //the structure of each room
+            rooms.push({ name: data.room, users: [{name:data.name, cards:0}], deck: [...deckBase], order: new orderClass({socketId:socket.id, name:data.name})}) //the structure of each room
             socket.emit('success', true)
             io.emit('updateRoomsResponse', rooms)
 
@@ -122,7 +123,7 @@ io.on('connection', socket => {
                     rooms = roomsFilter
                     io.emit('updateRoomsResponse', rooms)
                 } else {//cutting left user
-                    const users = room.users.filter(user => user != data.name)
+                    const users = room.users.filter(user => user.name != data.name)
                     room.users = users
                     room.order.deleteUser(socket.id)
                 }
@@ -144,11 +145,7 @@ io.on('connection', socket => {
     socket.on('getCardFromDeck', data => {//give card to user
         rooms.filter(room => {
             if (room.name === data.room){
-
-                socket.emit('getCardFromDeckResponse', room.deck.splice(0, 1)[0])
-                io.to(data.room).emit('getCardFromDeckToOpponentResponse', data.name)  
-                io.to(data.room).emit('changeNumOfCards', data.name) 
-                
+                giveCardToUser(room, data.room, data.name, socket.id)
             }
         })
 
@@ -157,8 +154,7 @@ io.on('connection', socket => {
     socket.on('sendCardToTable', data => {
         rooms.filter(room => {
             if (room.name === data.room){
-                io.to(data.room).emit('sendCardToTableResponse', data)
-                io.to(data.room).emit('deleteCardFromOpponent', data.name)
+                deleteCardFromUser(room, data.room, data.name, data)
             }
         })
     })
@@ -181,8 +177,65 @@ io.on('connection', socket => {
     socket.on('changeOrder', (data) => { 
         rooms.filter(room => {
             if (room.name === data.room){
-                room.order.changeOrder()
-                io.to(data.room).emit('changeOrderResponse', room.order.order[0])
+                room.order.changeOrder(1)
+                io.to(data.room).emit('changeOrderResponse', room.order.order[0].socketId)
+            }
+        })
+    })
+
+    socket.on('stopCardInteraction', (data) => {
+        rooms.filter(room => {
+            if (room.name === data.room){
+                room.order.changeOrder(2)
+                io.to(data.room).emit('changeOrderResponse', room.order.order[0].socketId)
+            }
+        })
+    })
+
+    socket.on('reverseCardInteraction', (data) => {
+        rooms.filter(room => {
+            if (room.name === data.room){
+                if(room.order.order.length == 2){
+                    room.order.changeOrder(2)
+                }else{
+                room.order.reverseOrder()
+                }
+                io.to(data.room).emit('changeOrderResponse', room.order.order[0].socketId)
+            }
+        })
+    })
+
+    socket.on('plus2Card', (data) => {
+        rooms.filter(room => {
+            if (room.name === data.room){
+                giveCardToUser(room, data.room, room.order.order[1].name, room.order.order[1].socketId)
+                giveCardToUser(room, data.room, room.order.order[1].name, room.order.order[1].socketId)
+                room.order.changeOrder(2)
+                io.to(data.room).emit('changeOrderResponse', room.order.order[0].socketId)
+            }
+        })
+    })
+
+    socket.on('changeColorCard', (data) => {
+        rooms.filter(room => {
+            if(room.name === data.room){
+                io.to(data.room).emit('changeColorCardResponse', data.color)
+                room.order.changeOrder(1)
+                io.to(data.room).emit('changeOrderResponse', room.order.order[0].socketId)
+
+            }
+        })
+    })
+
+    socket.on('plus4Card', (data) => {
+        rooms.filter(room => {
+            if(room.name === data.room){
+                for (let i = 0; i < 4; i++) {
+                    giveCardToUser(room, data.room, room.order.order[1].name, room.order.order[1].socketId)
+                }
+                io.to(data.room).emit('changeColorCardResponse', data.color)
+                room.order.changeOrder(2)
+                io.to(data.room).emit('changeOrderResponse', room.order.order[0].socketId)
             }
         })
     })
@@ -190,6 +243,29 @@ io.on('connection', socket => {
 })
 
 
+
+const giveCardToUser = (room, dataRoom, dataName, socketId) => {
+    room.users.filter(user => {
+        if(user.name == dataName){
+            user.cards++
+        }
+    })
+    io.to(socketId).emit('getCardFromDeckResponse', room.deck.splice(0, 1)[0])
+    io.to(dataRoom).emit('updateUsers', room.users)
+    io.to(dataRoom).emit('changeNumOfCards') 
+}
+
+const deleteCardFromUser = (room, dataRoom, dataName, data) => {
+    room.users.filter(user => {
+        if(user.name == dataName){
+            user.cards--
+        }
+    })
+    io.to(dataRoom).emit('sendCardToTableResponse', data)
+    io.to(dataRoom).emit('updateUsers', room.users)
+}
+
+ 
 server.listen(PORT, () => {
-    console.log('server started')
+    console.log('server started', new Date())
 })

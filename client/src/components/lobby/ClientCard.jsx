@@ -14,6 +14,9 @@ const ClientCard = (props) => {
                 });
                 props.deleteCard(props.index);
                 props.setMultiMove(true)
+                if(cardRuleChecker.cardInteraction({char:props.char}, props.socket, props.prevCard, 'checkChangeColor')){
+                    props.setChangeColorMode(true)
+                }
             }else{
                 console.log('wrong card')
             }

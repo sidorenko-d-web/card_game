@@ -13,6 +13,7 @@ const Lobby = ({socket}) => {
     const [currentUserOrder, setcurrentUserOrder] = useState()
     const [prevCard, setPrevCard] = useState({color: 'any', char:'x'})
     const [multiMove, setMultiMove] = useState(false)
+    const [changeColorMode, setChangeColorMode] = useState(false) 
 
     const updateUsersInRoom = (data) => { 
         setUsers(data)
@@ -26,18 +27,38 @@ const Lobby = ({socket}) => {
         socket.on('changeOrderResponse', (user) => {
             setcurrentUserOrder(user)
         })
+        socket.on('changeColorCardResponse', (color) => {
+            setPrevCard({color, char:'change color'})
+        })
     }, [socket])
 
 
     return (
         <main>
             <div className="game-field">
-                <Deck socket={socket} currentUserOrder={currentUserOrder}/>
+                <Deck socket={socket} currentUserOrder={currentUserOrder} />
                 <Opponents users={users} socket={socket}/>
-                <ClientCards socket={socket} moveRuleStates={{currentUserOrder, multiMove, setMultiMove}} prevCard={prevCard}/>
-                <TableCard socket={socket} prevCard={prevCard} setPrevCard={setPrevCard}/>
+
+                <ClientCards 
+                    socket={socket} 
+                    setChangeColorMode={setChangeColorMode} 
+                    moveRuleStates={{currentUserOrder, multiMove, setMultiMove}} 
+                    prevCard={prevCard}
+                />
+
+                <TableCard 
+                    setMultiMove={setMultiMove} 
+                    socket={socket} 
+                    prevCard={prevCard} 
+                    setPrevCard={setPrevCard} 
+                    changeColorModeStates={{changeColorMode, setChangeColorMode}}/>
             </div>
-            <RoomMenu socket={socket}  currentUserOrder={currentUserOrder} setMultiMove={setMultiMove}/>
+
+            <RoomMenu 
+                socket={socket}  
+                moveRuleStates={{currentUserOrder, multiMove, setMultiMove}} 
+                prevCard={prevCard}
+            />
         </main>
     )
 }

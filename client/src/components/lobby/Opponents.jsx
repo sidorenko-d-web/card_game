@@ -10,8 +10,8 @@ const Opponents = (props) => {
 
 
         let usersToChange = data.users
-        if(usersToChange.find(item => item === localStorage.getItem('name'))){
-            while(String(usersToChange[0]) !== localStorage.getItem('name')){
+        if(usersToChange.find(item => item.name === localStorage.getItem('name'))){
+            while(String(usersToChange[0].name) !== localStorage.getItem('name')){
                 usersToChange.push(usersToChange[0])
                 usersToChange.splice(0,1)
             }        
@@ -49,6 +49,7 @@ const Opponents = (props) => {
           {opponents.slice(1).map((opponent, index) => (
             <div className={`opponent`} key={index} id={index+1}>
               <OpponentCards
+                numCards = {opponent.cards}
                 opponent={opponent}
                 number={index}
                 socket={props.socket}

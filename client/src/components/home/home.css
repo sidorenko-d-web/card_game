@@ -1,31 +1,47 @@
+/*
+* Prefixed by https://autoprefixer.github.io
+* PostCSS: v8.4.14,
+* Autoprefixer: v10.4.7
+* Browsers: safari >= 7
+*/
+
 body{
     height: 100svh;
     background-color: #404040;
+    display: -webkit-flex;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    -webkit-align-items: center;
+            align-items: center;
+    -webkit-justify-content: center;
+            justify-content: center;
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
 }
  form{
     width: 60vw;
+    display: -webkit-flex;
     display: flex;
-    flex-direction: column;
+    -webkit-flex-direction: column;
+            flex-direction: column;
     gap: 10px;
  }
 .inputs{
     width: 60vw;
     gap: 10px;
+    display: -webkit-flex;
     display: flex;
 
 }
 label{
     width: 30vw;
+    display: -webkit-flex;
     display: flex;
-    flex-direction: column;
+    -webkit-flex-direction: column;
+            flex-direction: column;
     font-size: 2.7vw;
-    align-items: center;
+    -webkit-align-items: center;
+            align-items: center;
     gap: 10px;
     color: whitesmoke;
     
@@ -59,8 +75,10 @@ button{
     word-wrap: break-word;
     overflow-y: scroll;
     height: 100vh;
+    display: -webkit-flex;
     display: flex;
-    flex-direction: column; 
+    -webkit-flex-direction: column;
+            flex-direction: column; 
 }
 .onlineRooms::-webkit-scrollbar{
     display: none;
@@ -68,4 +86,3 @@ button{
 .room{
     margin:0 0 20px 8vw;
 }
-

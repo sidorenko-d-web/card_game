@@ -3,6 +3,10 @@ module.exports = class Order{
         this.order = [originUser]
     }
 
+    reverseOrder(){
+        this.order.reverse()
+    }
+
     addUser(user) {
         this.order.push(user)
     }
@@ -11,7 +15,9 @@ module.exports = class Order{
         this.order = this.order.filter(elem => elem !== user)
     }
 
-    changeOrder(){
-        this.order.push(...this.order.splice(0, 1))
+    changeOrder(times){
+        for (let i = 0; i < times; i++) {
+            this.order.push(...this.order.splice(0, 1))
+        }
     }
 }

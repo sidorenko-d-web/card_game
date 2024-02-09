@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ClientCard from "./ClientCard";
 
-const ClientCards = ({ socket, moveRuleStates, prevCard }) => {
+const ClientCards = ({ socket, moveRuleStates, prevCard, setChangeColorMode }) => {
     
     const [clientCards, setClientCards] = useState([]);
     const [amountOfClientCards, setAmountOfClientCards] = useState([]);
@@ -43,6 +43,7 @@ const ClientCards = ({ socket, moveRuleStates, prevCard }) => {
                     socket={socket}
                     deleteCard={deleteCard}
                     prevCard={prevCard}
+                    setChangeColorMode={setChangeColorMode}
                 />
             ))}
         </div>
