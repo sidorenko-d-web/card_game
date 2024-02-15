@@ -46,8 +46,6 @@ for (let i = 1; i <= 4; i++) {
             break;
     }
 
-
-
     for (let i = 1; i <= 9; i++) {
         cardsToTwise.push({
             char: i,
@@ -78,9 +76,7 @@ app.get('/', (req, res) => {
     res.send('server')
 })
 
-function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+
 
 io.on('connection', socket => {
 
@@ -90,8 +86,10 @@ io.on('connection', socket => {
     socket.on('login', data => {
         if (rooms.some(room => room.name === data.room)) {//join room
             rooms.find(room => {
-                if (room.name === data.room) { //add new user to room
-                    if (!room.users.includes(data.name)) {
+                    console.log(room.users.find(user => user.name == data.name))/////
+                    console.log('f')
+                if (!room.name === data.room && !room.status.gameStatus) { //add new user to room
+                    if (room.users.find(user => user.name == data.name)) {///////
                         socket.join(data.room)
                         room.users.push({name:data.name, cards:0})
                         room.order.addUser({socketId:socket.id, name: data.name})
@@ -108,7 +106,18 @@ io.on('connection', socket => {
             })
         } else {//new room
             socket.join(data.room)
-            rooms.push({ name: data.room, users: [{name:data.name, cards:0}], deck: [...deckBase], order: new orderClass({socketId:socket.id, name:data.name})}) //the structure of each room
+            rooms.push({ 
+                name: data.room, 
+                users: [{name:data.name, cards:0}],
+                deck: [...deckBase], 
+                order: new orderClass({
+                    socketId:socket.id, 
+                    name:data.name}),
+                status:{
+                    gameStatus:false,
+                    readyUsers:0
+                }
+            })                                                                  //the structure of each room
             socket.emit('success', true)
             io.emit('updateRoomsResponse', rooms)
 
@@ -159,20 +168,20 @@ io.on('connection', socket => {
         })
     })
 
-    socket.on('mixDeck', data => {
-        rooms.filter(room => {
-            if (room.name === data.room){
-                localDeckBase = [...deckBase]
-                let mixedDeck = []
-                for (let index = 0; index < 108; index++) {
-                    const randInt = randomInt(0, localDeckBase.length-1)
-                    mixedDeck.push(localDeckBase[randInt])
-                    localDeckBase.splice(randInt, 1)
-                }
-                room.deck = mixedDeck
-            }
-        })
-    })
+    // socket.on('mixDeck', data => {
+    //     rooms.filter(room => {
+    //         if (room.name === data.room){
+    //             localDeckBase = [...deckBase]
+    //             let mixedDeck = []
+    //             for (let index = 0; index < 108; index++) {
+    //                 const randInt = randomInt(0, localDeckBase.length-1)
+    //                 mixedDeck.push(localDeckBase[randInt])
+    //                 localDeckBase.splice(randInt, 1)
+    //             }
+    //             room.deck = mixedDeck
+    //         }
+    //     })
+    // })
 
     socket.on('changeOrder', (data) => { 
         rooms.filter(room => {
@@ -240,9 +249,49 @@ io.on('connection', socket => {
         })
     })
 
+    socket.on('getReadyUser', (data) => [
+        rooms.filter(room => {
+            if(room.name === data.room){
+                if(!room.status.gameStatus){
+                    if(room.status.readyUsers < room.users.length - 1 || room.users.length == 1){
+                        room.status.readyUsers++
+                    }else{
+                        startGame(room)
+                    }
+                }
+            }
+        })
+    ])
+
 })
 
+const startGame = (room) => {
+    localDeckBase = [...deckBase]
+    let mixedDeck = []
+    for (let index = 0; index < 108; index++) {
+        const randInt = randomInt(0, localDeckBase.length-1)
+        mixedDeck.push(localDeckBase[randInt])
+        localDeckBase.splice(randInt, 1)
+    }
+    
+    room.deck = mixedDeck
 
+    room.order.order.forEach(user => {
+        for (let i = 0; i < 7; i++) {
+            giveCardToUser(room, room.name, user.name, user.socketId)
+            
+        }
+    });
+
+    room.order.changeOrder(randomInt(0, 5))
+    io.to(room.name).emit('changeOrderResponse', room.order.order[0].socketId)
+    
+    room.status.gameStatus = true
+}
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
 const giveCardToUser = (room, dataRoom, dataName, socketId) => {
     room.users.filter(user => {

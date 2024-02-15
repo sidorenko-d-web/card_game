@@ -4,6 +4,7 @@ import cardRuleChecker from './cardRuleChecker'
 
 const RoomMenu = ({ socket, moveRuleStates, prevCard }) => {
     const navigate = useNavigate()
+    const [readyStatus, setReadyStatus] = useState(false)
 
     const handleLeave = () => {
         socket.emit('leaveRoom', { name: localStorage.getItem('name'), room: localStorage.getItem('room') })
@@ -22,8 +23,9 @@ const RoomMenu = ({ socket, moveRuleStates, prevCard }) => {
         }
     }
 
-    const mixDeck = () => {
-        socket.emit('mixDeck', {room: localStorage.getItem('room')} )
+    const getReady = () => {
+        socket.emit('getReadyUser', {room: localStorage.getItem('room')})
+        setReadyStatus(true)
     }
 
     
@@ -40,7 +42,7 @@ const RoomMenu = ({ socket, moveRuleStates, prevCard }) => {
     return (
         <div className='room-menu'>
             <button onClick={handleLeave} type="button">Leave the room</button>
-            <button onClick={mixDeck} type="button">mix deck</button>
+            <button onClick={getReady} className={readyStatus ? 'green' : 'common'} type="button">getReady</button>
             <button onClick={changeOrder} className={socket.id == moveRuleStates.currentUserOrder ? 'green': 'common'} type="button">end move</button>
         </div>
     )
