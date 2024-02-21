@@ -9,19 +9,36 @@ const ClientCards = ({ socket, moveRuleStates, prevCard, setChangeColorMode }) =
 
     let numberOfClientCards = 0;
 
-    let addCard = (data) => {
-        setClientCards((current) => [...current, data]);
-        numberOfClientCards += 1;
-        if (numberOfClientCards > 7) {
+    const checkWinSituation = () => {
+        if(numberOfClientCards == 0){
+            socket.emit('getUserWin', ({
+                room:localStorage.getItem('room'), 
+                winner: localStorage.getItem('name')
+            }))
+        }
+    }
+
+    const changeNumberOfClientCards = () => {
+        console.log(numberOfClientCards)
+        if (numberOfClientCards >= 7) {
             setAmountOfClientCards("many");
         } else {
             setAmountOfClientCards("normal");
         }
+    }
+
+    let addCard = (data) => {
+        setClientCards((current) => [...current, data]);
+        numberOfClientCards += 1;
+        changeNumberOfClientCards()
     };
     let deleteCard = (index) => {
         const otherCards = clientCards;
         otherCards.splice(index, 1);
         setClientCards([...otherCards]);
+        numberOfClientCards = clientCards.length
+        changeNumberOfClientCards()
+        checkWinSituation()
     };
 
     useEffect(() => {

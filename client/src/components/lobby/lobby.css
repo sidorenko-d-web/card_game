@@ -6,6 +6,8 @@
 */
 
 
+
+
 .room-menu{
     position: absolute;
     top: 2vh;
@@ -44,7 +46,7 @@
 .game-field{
     background-color: #353535;
     width: 60vw;
-    height: 60vh;
+    height: 40vh;
     position: relative;
     display: -webkit-flex;
     display: flex;
@@ -242,4 +244,43 @@ img{
 
 .change-color-item:hover{
     scale: 1.1;
+}
+
+.none{
+    display: none;
+}
+
+.winner-alert{
+    width: 70vw;
+    height: 30vh;
+    background-color: #757575;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+}
+
+.status-btn0{
+    background: #202020;
+}
+
+.status-btn1{
+    background: linear-gradient(to left, #202020 75%, green 25%);
+}
+
+.status-btn2{
+    background: linear-gradient(to left, #202020 50%, green 50%);
+}
+
+.status-btn3{
+    background: linear-gradient(to right, green 75%, #202020 25%);
+}
+
+.status-btn4{
+    display: none;
 }

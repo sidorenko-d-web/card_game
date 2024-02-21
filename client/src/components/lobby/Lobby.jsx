@@ -6,6 +6,7 @@ import Opponents from './Opponents'
 import Deck from './Deck'
 import ClientCards from './ClientCards'
 import TableCard from './TableCard'
+import WinnerAlert from './WinnerAlert'
 
 const Lobby = ({socket}) => {
 
@@ -52,6 +53,10 @@ const Lobby = ({socket}) => {
                     prevCard={prevCard} 
                     setPrevCard={setPrevCard} 
                     changeColorModeStates={{changeColorMode, setChangeColorMode}}/>
+                <WinnerAlert socket={socket}/>
+            </div>
+            <div className="popups">
+              
             </div>
 
             <RoomMenu 

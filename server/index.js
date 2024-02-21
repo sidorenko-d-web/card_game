@@ -6,6 +6,7 @@ const cors = require('cors')
 const { disconnect } = require('process')
 const orderClass = require('./orderClass')
 const { reverse } = require('dns')
+const { restart } = require('nodemon')
 
 const io = require('socket.io')(server, {
     cors: {
@@ -86,10 +87,8 @@ io.on('connection', socket => {
     socket.on('login', data => {
         if (rooms.some(room => room.name === data.room)) {//join room
             rooms.find(room => {
-                    console.log(room.users.find(user => user.name == data.name))/////
-                    console.log('f')
-                if (!room.name === data.room && !room.status.gameStatus) { //add new user to room
-                    if (room.users.find(user => user.name == data.name)) {///////
+                if (room.name === data.room && !room.status.gameStatus) { //add new user to room
+                    if (!room.users.find(user => user.name == data.name)) {///////
                         socket.join(data.room)
                         room.users.push({name:data.name, cards:0})
                         room.order.addUser({socketId:socket.id, name: data.name})
@@ -263,6 +262,33 @@ io.on('connection', socket => {
         })
     ])
 
+    socket.on('getUserWin', (data) => [
+        rooms.filter(room => {
+            if(room.name === data.room){
+                io.to(data.room).emit('getUserWinResponse', data.winner)
+                room.status.readyUsers = 0
+                room.status.gameStatus = false
+            }
+        })
+    ])
+
+    socket.on('getUserRestart', (data) => {
+        rooms.filter(room => {
+            if(room.name == data.room){
+                if(!room.status.gameStatus){
+                    if(room.status.readyUsers < room.users.length - 1 || room.users.length == 1){
+                        room.status.readyUsers++
+                        socket.emit('getUserRestartResponse', {type: 'button', readyUsers: room.status.readyUsers})
+                    }else{
+                        socket.emit('getUserRestartResponse', {type: 'restart'})
+                        startGame(room)
+                    }
+                }
+            }
+        })
+    })
+
+
 })
 
 const startGame = (room) => {
@@ -277,7 +303,7 @@ const startGame = (room) => {
     room.deck = mixedDeck
 
     room.order.order.forEach(user => {
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 1; i++) {
             giveCardToUser(room, room.name, user.name, user.socketId)
             
         }
@@ -294,24 +320,28 @@ function randomInt(min, max) {
   }
 
 const giveCardToUser = (room, dataRoom, dataName, socketId) => {
-    room.users.filter(user => {
-        if(user.name == dataName){
-            user.cards++
-        }
-    })
-    io.to(socketId).emit('getCardFromDeckResponse', room.deck.splice(0, 1)[0])
-    io.to(dataRoom).emit('updateUsers', room.users)
-    io.to(dataRoom).emit('changeNumOfCards') 
+    if(room.status.gameStatus){
+        room.users.filter(user => {
+            if(user.name == dataName){
+                user.cards++
+            }
+        })
+        io.to(socketId).emit('getCardFromDeckResponse', room.deck.splice(0, 1)[0])
+        io.to(dataRoom).emit('updateUsers', room.users)
+        io.to(dataRoom).emit('changeNumOfCards') 
+    }
 }
 
 const deleteCardFromUser = (room, dataRoom, dataName, data) => {
-    room.users.filter(user => {
-        if(user.name == dataName){
-            user.cards--
-        }
-    })
-    io.to(dataRoom).emit('sendCardToTableResponse', data)
-    io.to(dataRoom).emit('updateUsers', room.users)
+    if(room.status.gameStatus){
+        room.users.filter(user => {
+            if(user.name == dataName && room.status.gameStatus){
+                user.cards--
+            }
+        })
+        io.to(dataRoom).emit('sendCardToTableResponse', data)
+        io.to(dataRoom).emit('updateUsers', room.users)
+    }
 }
 
  
