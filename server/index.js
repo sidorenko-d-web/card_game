@@ -3,10 +3,7 @@ const app = express()
 const PORT = 8080
 const server = require('http').createServer(app)
 const cors = require('cors')
-const { disconnect } = require('process')
 const orderClass = require('./orderClass')
-const { reverse } = require('dns')
-const { restart } = require('nodemon')
 
 const io = require('socket.io')(server, {
     cors: {
