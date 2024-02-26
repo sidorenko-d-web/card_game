@@ -297,7 +297,7 @@ const startGame = (room) => {
     room.deck = mixDeck()
 
     room.order.order.forEach(user => {
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 7; i++) {
             giveCardToUser(room, room.name, user.name, user.socketId)
         }
     });
