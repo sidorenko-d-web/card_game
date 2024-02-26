@@ -18,6 +18,9 @@ const TableCard = ({socket, prevCard, setPrevCard, changeColorModeStates, setMul
                 setPrevCard({color:data.color, char: data.char})
             }
         })
+        socket.on('restartCards', () => {
+            setPrevCard({color: 'any', char:'x'})
+        })
     },[socket])
 
     return (

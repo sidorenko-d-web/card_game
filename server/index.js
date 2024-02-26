@@ -95,7 +95,6 @@ io.on('connection', socket => {
                         socket.emit('success', true)
                         setTimeout(() => {
                             io.to(data.room).emit('updateUsers', room.users)
-                            io.to(data.room).emit('changeOrderResponse', room.order.order[0].socketId)
                         }, 300)
 
                     } else {//pls change nickname
@@ -107,8 +106,8 @@ io.on('connection', socket => {
             socket.join(data.room)
             rooms.push({ 
                 name: data.room, 
-                users: [{name:data.name, cards:0}],
-                deck: [...deckBase], 
+                users: [{name:data.name, cards:0, unoStatus: false}],
+                deck: [], 
                 order: new orderClass({
                     socketId:socket.id, 
                     name:data.name}),
@@ -166,21 +165,6 @@ io.on('connection', socket => {
             }
         })
     })
-
-    // socket.on('mixDeck', data => {
-    //     rooms.filter(room => {
-    //         if (room.name === data.room){
-    //             localDeckBase = [...deckBase]
-    //             let mixedDeck = []
-    //             for (let index = 0; index < 108; index++) {
-    //                 const randInt = randomInt(0, localDeckBase.length-1)
-    //                 mixedDeck.push(localDeckBase[randInt])
-    //                 localDeckBase.splice(randInt, 1)
-    //             }
-    //             room.deck = mixedDeck
-    //         }
-    //     })
-    // })
 
     socket.on('changeOrder', (data) => { 
         rooms.filter(room => {
@@ -248,19 +232,20 @@ io.on('connection', socket => {
         })
     })
 
-    socket.on('getReadyUser', (data) => [
+    socket.on('getReadyUser', (data) => {
         rooms.filter(room => {
             if(room.name === data.room){
                 if(!room.status.gameStatus){
                     if(room.status.readyUsers < room.users.length - 1 || room.users.length == 1){
                         room.status.readyUsers++
+                        io.to(data.room).emit('getReadyUserResponse', {type: data.type, readyUsers: room.status.readyUsers+'-'+room.users.length})
                     }else{
                         startGame(room)
                     }
                 }
             }
         })
-    ])
+})
 
     socket.on('getUserWin', (data) => [
         rooms.filter(room => {
@@ -272,26 +257,62 @@ io.on('connection', socket => {
         })
     ])
 
-    socket.on('getUserRestart', (data) => {
+    socket.on('unoBtn', (data) => {
         rooms.filter(room => {
-            if(room.name == data.room){
-                if(!room.status.gameStatus){
-                    if(room.status.readyUsers < room.users.length - 1 || room.users.length == 1){
-                        room.status.readyUsers++
-                        socket.emit('getUserRestartResponse', {type: 'button', readyUsers: room.status.readyUsers})
-                    }else{
-                        socket.emit('getUserRestartResponse', {type: 'restart'})
-                        startGame(room)
+            if(room.name === data.room){
+                room.users.filter(user => {
+                    if (user.cards == 1 && user.name != data.name) {
+                        if(!user.unoStatus){
+                            const userFromOrder = room.order.order.filter(userInOrder => userInOrder.name == user.name)[0]
+                            giveCardToUser(room, data.room, user.name, userFromOrder.socketId)
+                            giveCardToUser(room, data.room, user.name, userFromOrder.socketId)
+                        }
                     }
-                }
+                    else if (user.cards == 1 && user.name == data.name) {
+                        setUnoStatus(true, data.name, room)
+                    }   
+                })
             }
         })
     })
-
-
 })
 
+const setUnoStatus = (value, dataName, room) => {
+    room.users.filter(user => {
+        if(user.name == dataName){
+            user.unoStatus = value
+        }
+    })
+}
+
 const startGame = (room) => {
+    io.to(room.name).emit('restartCards')
+
+    room.users.forEach(user => {
+        user.cards = 0
+        user.unoStatus = false
+    });
+
+    
+
+    room.status.gameStatus = true
+    
+    room.deck = mixDeck()
+
+    room.order.order.forEach(user => {
+        for (let i = 0; i < 2; i++) {
+            giveCardToUser(room, room.name, user.name, user.socketId)
+        }
+    });
+
+    room.order.changeOrder(randomInt(0, 5))
+     
+    io.to(room.name).emit('getReadyUserResponse', {type: 'start', readyUsers: room.status.readyUsers+'-'+room.users.length})
+    io.to(room.name).emit('updateUsers', room.users)
+    io.to(room.name).emit('changeOrderResponse', room.order.order[0].socketId)  
+}
+
+const mixDeck = () => {
     localDeckBase = [...deckBase]
     let mixedDeck = []
     for (let index = 0; index < 108; index++) {
@@ -299,20 +320,7 @@ const startGame = (room) => {
         mixedDeck.push(localDeckBase[randInt])
         localDeckBase.splice(randInt, 1)
     }
-    
-    room.deck = mixedDeck
-
-    room.order.order.forEach(user => {
-        for (let i = 0; i < 1; i++) {
-            giveCardToUser(room, room.name, user.name, user.socketId)
-            
-        }
-    });
-
-    room.order.changeOrder(randomInt(0, 5))
-    io.to(room.name).emit('changeOrderResponse', room.order.order[0].socketId)
-    
-    room.status.gameStatus = true
+    return mixedDeck
 }
 
 function randomInt(min, max) {
@@ -328,7 +336,8 @@ const giveCardToUser = (room, dataRoom, dataName, socketId) => {
         })
         io.to(socketId).emit('getCardFromDeckResponse', room.deck.splice(0, 1)[0])
         io.to(dataRoom).emit('updateUsers', room.users)
-        io.to(dataRoom).emit('changeNumOfCards') 
+        io.to(dataRoom).emit('changeNumOfCards', room.deck.length)
+        setUnoStatus(false, dataName, room) 
     }
 }
 
@@ -341,6 +350,7 @@ const deleteCardFromUser = (room, dataRoom, dataName, data) => {
         })
         io.to(dataRoom).emit('sendCardToTableResponse', data)
         io.to(dataRoom).emit('updateUsers', room.users)
+        setUnoStatus(false, dataName, room) 
     }
 }
 

@@ -31,13 +31,17 @@ const Lobby = ({socket}) => {
         socket.on('changeColorCardResponse', (color) => {
             setPrevCard({color, char:'change color'})
         })
+        socket.on('restartCards', () => {
+            setMultiMove(false)
+            setChangeColorMode(false)
+        })
     }, [socket])
 
 
     return (
         <main>
             <div className="game-field">
-                <Deck socket={socket} currentUserOrder={currentUserOrder} />
+                <Deck socket={socket} currentUserOrder={currentUserOrder} multiMove={multiMove}/>
                 <Opponents users={users} socket={socket}/>
 
                 <ClientCards 

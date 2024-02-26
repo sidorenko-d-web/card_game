@@ -5,6 +5,7 @@ const ClientCards = ({ socket, moveRuleStates, prevCard, setChangeColorMode }) =
     
     const [clientCards, setClientCards] = useState([]);
     const [amountOfClientCards, setAmountOfClientCards] = useState([]);
+    const [unoCardState, setUnoCardState] = useState(false)
     
 
     let numberOfClientCards = 0;
@@ -19,7 +20,6 @@ const ClientCards = ({ socket, moveRuleStates, prevCard, setChangeColorMode }) =
     }
 
     const changeNumberOfClientCards = () => {
-        console.log(numberOfClientCards)
         if (numberOfClientCards >= 7) {
             setAmountOfClientCards("many");
         } else {
@@ -28,10 +28,12 @@ const ClientCards = ({ socket, moveRuleStates, prevCard, setChangeColorMode }) =
     }
 
     let addCard = (data) => {
+        console.log('a')
         setClientCards((current) => [...current, data]);
         numberOfClientCards += 1;
         changeNumberOfClientCards()
     };
+
     let deleteCard = (index) => {
         const otherCards = clientCards;
         otherCards.splice(index, 1);
@@ -43,7 +45,7 @@ const ClientCards = ({ socket, moveRuleStates, prevCard, setChangeColorMode }) =
 
     useEffect(() => {
         socket.on("getCardFromDeckResponse", (data) => addCard(data));
-        socket.on("clearClientCards", () => setClientCards([]));
+        socket.on("restartCards", () => setClientCards([]));
     }, [socket]);
 
     return (

@@ -260,27 +260,96 @@ img{
     transform: translate(-50%, -50%);
     z-index: 100;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     font-size: 28px;
+}
+
+.restart-btn{
+    padding: 15px 30px;
+}
+
+.room-menu button{
+    transition: all .3s ease;
 }
 
 .status-btn0{
     background: #202020;
 }
 
-.status-btn1{
-    background: linear-gradient(to left, #202020 75%, green 25%);
+.status-btn1-2, .status-btn2-4{
+    background: linear-gradient(to right, green 50%, #202020 0%);
 }
 
-.status-btn2{
-    background: linear-gradient(to left, #202020 50%, green 50%);
+.status-btn1-3{
+    background: linear-gradient(to right, green 33%, #202020 0%);
 }
 
-.status-btn3{
-    background: linear-gradient(to right, green 75%, #202020 25%);
+.status-btn1-4{
+    background: linear-gradient(to right, green 25%, #202020 0%);
 }
 
-.status-btn4{
+.status-btn2-3{
+    background: linear-gradient(to right, green 66%, #202020 0%);
+}
+
+.status-btn3-4{
+    background: linear-gradient(to right, green 75%, #202020 0%);
+}
+
+.status-btn-none{
     display: none;
+}
+
+@keyframes uno-btn-reload {
+    0%{
+        background: linear-gradient(to right, green 0%, #202020 0%);
+    }
+
+    10%{
+        background: linear-gradient(to right, green 10%, #202020 0%);
+    }
+
+    20%{
+        background: linear-gradient(to right, green 20%, #202020 0%);
+    }
+
+    30%{
+        background: linear-gradient(to right, green 30%, #202020 0%);
+    }
+    
+    40%{
+        background: linear-gradient(to right, green 40%, #202020 0%);
+    }
+
+    50%{
+        background:  linear-gradient(to right, green 50%, #202020 0%);
+    }
+    
+    60%{
+        background: linear-gradient(to right, green 60%, #202020 0%);
+    }
+
+    70%{
+        background:  linear-gradient(to right, green 70%, #202020 0%);
+    }
+
+    80%{
+        background: linear-gradient(to right, green 80%, #202020 0%);
+    }
+
+    90%{
+        background:  linear-gradient(to right, green 90%, #202020 0%);
+    }
+
+    100%{
+        background: linear-gradient(to right, green 100%, #202020 0%);
+    }
+}
+
+.uno-btn-reload{
+    background: linear-gradient(to right, green 0%, #202020 0%);
+    animation: uno-btn-reload 5.10s linear forwards;
+    transition: all;
 }
