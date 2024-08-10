@@ -1,6 +1,6 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
-const PORT = 8080
 const server = require('http').createServer(app)
 const cors = require('cors')
 const orderClass = require('./orderClass')
@@ -352,6 +352,6 @@ const deleteCardFromUser = (room, dataRoom, dataName, data) => {
 }
 
  
-server.listen(PORT, () => {
+server.listen(process.env.PORT, () => {
     console.log('server started', new Date())
 })
