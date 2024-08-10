@@ -4,10 +4,12 @@ const app = express()
 const server = require('http').createServer(app)
 const cors = require('cors')
 const orderClass = require('./orderClass')
-
+ 
 const io = require('socket.io')(server, {
     cors: {
-        origin: ['http://localhost:5173/']
+        origin: process.env.CORS_URL,
+        methods: ["GET", "POST"]
+
     }
 })
 
