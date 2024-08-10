@@ -7,7 +7,7 @@ const orderClass = require('./orderClass')
 
 const io = require('socket.io')(server, {
     cors: {
-        origin: '*'
+        origin: ['http://localhost:5173/']
     }
 })
 
